@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SRT Admin Panel</title>
+  <title>RCSER Admin Panel</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: #1a1a2e; }
@@ -98,7 +98,7 @@
 </head>
 <body>
   <div class="topbar">
-    <h1>SRT License Manager</h1>
+    <h1>RCSER License Manager</h1>
     <div class="topbar-right">
       <a href="#" onclick="showPasswordModal()">Change Password</a>
       <a href="/admin/logout">Logout</a>
@@ -111,6 +111,7 @@
     <div class="tabs">
       <button class="tab active" onclick="switchTab('licenses', this)">Licenses</button>
       <button class="tab" onclick="switchTab('logs', this)">Activation Logs</button>
+      <button class="tab" onclick="switchTab('updates', this)">Updates</button>
     </div>
 
     <div id="tab-licenses" class="panel">
@@ -136,6 +137,19 @@
           <tr><th>Time</th><th>Key</th><th>Email</th><th>Action</th><th>IP</th><th>HWID</th></tr>
         </thead>
         <tbody id="log-table"></tbody>
+      </table>
+    </div>
+
+    <div id="tab-updates" class="panel hidden">
+      <div class="panel-header">
+        <h2>App Updates</h2>
+        <button class="btn btn-primary" onclick="showUploadModal()">+ Upload Update</button>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Version</th><th>File</th><th>Size</th><th>Changelog</th><th>Uploaded</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="updates-table"></tbody>
       </table>
     </div>
   </div>
@@ -242,6 +256,35 @@
     </div>
   </div>
 
+  <!-- Upload Update Modal -->
+  <div class="modal-overlay" id="uploadModal">
+    <div class="modal">
+      <h3>Upload New Update</h3>
+      <div class="form-group">
+        <label>Version (e.g. 1.3.0)</label>
+        <input type="text" id="u_version" placeholder="1.3.0">
+      </div>
+      <div class="form-group">
+        <label>Changelog (optional)</label>
+        <textarea id="u_changelog" rows="3" placeholder="What's new..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>EXE File</label>
+        <input type="file" id="u_file" accept=".exe">
+      </div>
+      <div id="u_progress" style="display:none;margin-top:10px">
+        <div style="background:#e5e7eb;border-radius:6px;overflow:hidden;height:8px">
+          <div id="u_bar" style="background:#1b7ade;height:100%;width:0%;transition:width 0.3s"></div>
+        </div>
+        <p id="u_status" style="font-size:12px;color:#6b7280;margin-top:4px">Uploading...</p>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="closeModal('uploadModal')">Cancel</button>
+        <button class="btn btn-primary" id="u_btn" onclick="uploadUpdate()">Upload</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // --- Tabs ---
     function switchTab(name, el) {
@@ -249,7 +292,9 @@
       el.classList.add('active');
       document.getElementById('tab-licenses').classList.toggle('hidden', name !== 'licenses');
       document.getElementById('tab-logs').classList.toggle('hidden', name !== 'logs');
+      document.getElementById('tab-updates').classList.toggle('hidden', name !== 'updates');
       if (name === 'logs') loadLogs();
+      if (name === 'updates') loadUpdates();
     }
 
     // --- Modals ---
@@ -415,6 +460,83 @@
       } else {
         alert(res.error || 'Failed to change password.');
       }
+    }
+
+    // --- Updates ---
+    function showUploadModal() {
+      document.getElementById('u_version').value = '';
+      document.getElementById('u_changelog').value = '';
+      document.getElementById('u_file').value = '';
+      document.getElementById('u_progress').style.display = 'none';
+      document.getElementById('u_btn').disabled = false;
+      document.getElementById('uploadModal').classList.add('active');
+    }
+
+    async function uploadUpdate() {
+      const version = document.getElementById('u_version').value.trim();
+      const changelog = document.getElementById('u_changelog').value.trim();
+      const fileInput = document.getElementById('u_file');
+
+      if (!version || !fileInput.files.length) {
+        alert('Version and file are required');
+        return;
+      }
+
+      document.getElementById('u_btn').disabled = true;
+      document.getElementById('u_progress').style.display = 'block';
+
+      const formData = new FormData();
+      formData.append('version', version);
+      formData.append('changelog', changelog);
+      formData.append('file', fileInput.files[0]);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/updates');
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const pct = Math.round(e.loaded / e.total * 100);
+          document.getElementById('u_bar').style.width = pct + '%';
+          document.getElementById('u_status').textContent = pct + '% uploaded';
+        }
+      };
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          closeModal('uploadModal');
+          loadUpdates();
+        } else {
+          alert('Upload failed');
+          document.getElementById('u_btn').disabled = false;
+        }
+      };
+      xhr.onerror = () => {
+        alert('Upload error');
+        document.getElementById('u_btn').disabled = false;
+      };
+      xhr.send(formData);
+    }
+
+    async function loadUpdates() {
+      const data = await api('/api/updates');
+      document.getElementById('updates-table').innerHTML = data.map(u => {
+        const sizeMB = (u.file_size / 1024 / 1024).toFixed(2);
+        return `<tr>
+          <td><span class="badge badge-blue">${u.version}</span></td>
+          <td>${u.file_name}</td>
+          <td>${sizeMB} MB</td>
+          <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis">${u.changelog || '—'}</td>
+          <td>${new Date(u.created_at + 'Z').toLocaleString()}</td>
+          <td class="actions-cell">
+            <a href="/api/update/download/${u.id}" class="btn btn-ghost btn-sm">Download</a>
+            <button class="btn btn-danger btn-sm" onclick="deleteUpdate(${u.id})">Delete</button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function deleteUpdate(id) {
+      if (!confirm('Delete this update?')) return;
+      await api('/api/updates/' + id, { method: 'DELETE' });
+      loadUpdates();
     }
 
     // Init

@@ -1,13 +1,22 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const fs = require('fs');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const multer = require('multer');
 const { getDb, generateLicenseKey } = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ADMIN_SECRET = process.env.ADMIN_SECRET || 'change-this-secret-key';
+const UPDATES_DIR = path.join(__dirname, 'data', 'updates');
+if (!fs.existsSync(UPDATES_DIR)) fs.mkdirSync(UPDATES_DIR, { recursive: true });
+
+const upload = multer({
+  dest: UPDATES_DIR,
+  limits: { fileSize: 50 * 1024 * 1024 } // 50MB max
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -269,6 +278,79 @@ app.get('/api/stats', requireAdminApi, (req, res) => {
   ).get().c;
 
   res.json({ total, active, expired, todayActivations });
+});
+
+// =============================================
+// API: Auto-update (called by the app)
+// =============================================
+app.get('/api/update/check', (req, res) => {
+  const currentVersion = req.query.v || '0.0.0';
+  const db = getDb();
+  const latest = db.prepare('SELECT * FROM app_updates ORDER BY id DESC LIMIT 1').get();
+
+  if (!latest) {
+    return res.json({ update: false });
+  }
+
+  if (latest.version !== currentVersion) {
+    return res.json({
+      update: true,
+      version: latest.version,
+      changelog: latest.changelog || '',
+      size: latest.file_size,
+      url: '/api/update/download/' + latest.id
+    });
+  }
+
+  res.json({ update: false });
+});
+
+app.get('/api/update/download/:id', (req, res) => {
+  const db = getDb();
+  const update = db.prepare('SELECT * FROM app_updates WHERE id = ?').get(req.params.id);
+  if (!update) return res.status(404).json({ error: 'Update not found' });
+
+  const filePath = path.join(UPDATES_DIR, update.id + '.exe');
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
+
+  res.download(filePath, update.file_name);
+});
+
+// Admin: Upload update
+app.post('/api/updates', requireAdminApi, upload.single('file'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+  const { version, changelog } = req.body;
+  if (!version) {
+    fs.unlinkSync(req.file.path);
+    return res.status(400).json({ error: 'Version is required' });
+  }
+
+  const db = getDb();
+  const result = db.prepare(`
+    INSERT INTO app_updates (version, changelog, file_name, file_size)
+    VALUES (?, ?, ?, ?)
+  `).run(version, changelog || '', req.file.originalname, req.file.size);
+
+  // Rename file to id.exe
+  const newPath = path.join(UPDATES_DIR, result.lastInsertRowid + '.exe');
+  fs.renameSync(req.file.path, newPath);
+
+  res.json({ success: true, id: result.lastInsertRowid });
+});
+
+app.get('/api/updates', requireAdminApi, (req, res) => {
+  const db = getDb();
+  const updates = db.prepare('SELECT * FROM app_updates ORDER BY id DESC').all();
+  res.json(updates);
+});
+
+app.delete('/api/updates/:id', requireAdminApi, (req, res) => {
+  const db = getDb();
+  const filePath = path.join(UPDATES_DIR, req.params.id + '.exe');
+  try { if (fs.existsSync(filePath)) fs.unlinkSync(filePath); } catch {}
+  db.prepare('DELETE FROM app_updates WHERE id = ?').run(req.params.id);
+  res.json({ success: true });
 });
 
 // =============================================

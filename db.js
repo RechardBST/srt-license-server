@@ -51,6 +51,17 @@ function initTables() {
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       FOREIGN KEY (license_id) REFERENCES licenses(id)
     );
+
+    CREATE TABLE IF NOT EXISTS app_updates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      version TEXT NOT NULL,
+      changelog TEXT,
+      file_name TEXT NOT NULL,
+      file_data BLOB,
+      file_size INTEGER NOT NULL DEFAULT 0,
+      is_active INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
 }
 
