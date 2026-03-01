@@ -305,6 +305,9 @@
           <td>${hwidText}</td>
           <td class="actions-cell">
             <button class="btn btn-ghost btn-sm" onclick='editLicense(${JSON.stringify(l)})'>Edit</button>
+            ${l.is_active
+              ? `<button class="btn btn-danger btn-sm" onclick="toggleActive(${l.id}, false)">Deactivate</button>`
+              : `<button class="btn btn-sm" style="background:#dcfce7;color:#16a34a" onclick="toggleActive(${l.id}, true)">Activate</button>`}
             ${l.hwid ? `<button class="btn btn-ghost btn-sm" onclick="resetHwid(${l.id})">Reset HWID</button>` : ''}
             <button class="btn btn-danger btn-sm" onclick="deleteLicense(${l.id})">Delete</button>
           </td>
@@ -361,6 +364,13 @@
     async function resetHwid(id) {
       if (!confirm('Reset HWID binding? User will need to re-activate.')) return;
       await api('/api/licenses/' + id + '/reset-hwid', { method: 'POST' });
+      loadLicenses();
+    }
+
+    async function toggleActive(id, activate) {
+      const action = activate ? 'activate' : 'deactivate';
+      if (!confirm(activate ? 'Activate this license?' : 'Deactivate this license? User will lose access.')) return;
+      await api('/api/licenses/' + id + '/toggle-active', { method: 'POST', body: { is_active: activate } });
       loadLicenses();
     }
 

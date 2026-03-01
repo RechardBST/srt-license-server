@@ -132,6 +132,15 @@ app.post('/api/licenses/:id/reset-hwid', requireAdminApi, (req, res) => {
   res.json({ success: true });
 });
 
+// API: Toggle active status
+app.post('/api/licenses/:id/toggle-active', requireAdminApi, (req, res) => {
+  const db = getDb();
+  const isActive = req.body.is_active ? 1 : 0;
+  db.prepare('UPDATE licenses SET is_active = ? WHERE id = ?')
+    .run(isActive, req.params.id);
+  res.json({ success: true });
+});
+
 function logActivation(licenseId, hwid, ip, action) {
   try {
     const db = getDb();
