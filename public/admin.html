@@ -136,7 +136,7 @@
       </div>
       <table>
         <thead>
-          <tr><th>Key</th><th>Email</th><th>Plan</th><th>Status</th><th>Expires</th><th>HWID</th><th>Actions</th></tr>
+          <tr><th>Key</th><th>Telegram</th><th>Plan</th><th>Status</th><th>Expires</th><th>HWID</th><th>Actions</th></tr>
         </thead>
         <tbody id="license-table"></tbody>
       </table>
@@ -146,7 +146,7 @@
       <div class="panel-header"><h2>Activation Logs</h2></div>
       <table>
         <thead>
-          <tr><th>Time</th><th>Key</th><th>Email</th><th>Action</th><th>IP</th><th>HWID</th></tr>
+          <tr><th>Time</th><th>Key</th><th>Telegram</th><th>Action</th><th>IP</th><th>HWID</th></tr>
         </thead>
         <tbody id="log-table"></tbody>
       </table>
@@ -170,7 +170,7 @@
   <div class="modal-overlay" id="createModal">
     <div class="modal">
       <h3>Create New License</h3>
-      <div class="form-group"><label>Email</label><input type="email" id="c_email" placeholder="user@example.com"></div>
+      <div class="form-group"><label>Telegram</label><input type="text" id="c_Telegram" placeholder="@username"></div>
       <div class="form-group"><label>Plan</label>
         <select id="c_plan"><option value="Standard">Standard</option><option value="Pro">Pro</option><option value="Lifetime">Lifetime</option></select>
       </div>
@@ -188,7 +188,7 @@
     <div class="modal">
       <h3>Edit License</h3>
       <input type="hidden" id="e_id">
-      <div class="form-group"><label>Email</label><input type="email" id="e_email"></div>
+      <div class="form-group"><label>Telegram</label><input type="text" id="e_Telegram"></div>
       <div class="form-group"><label>Plan</label>
         <select id="e_plan"><option value="Standard">Standard</option><option value="Pro">Pro</option><option value="Lifetime">Lifetime</option></select>
       </div>
@@ -262,7 +262,7 @@
     function showCreateModal() {
       const d = new Date(); d.setMonth(d.getMonth() + 1);
       document.getElementById('c_expires').value = d.toISOString().split('T')[0];
-      document.getElementById('c_email').value = '';
+      document.getElementById('c_Telegram').value = '';
       document.getElementById('c_note').value = '';
       document.getElementById('createModal').classList.add('active');
     }
@@ -316,7 +316,7 @@
     }
 
     async function createLicense() {
-      const body = { email: document.getElementById('c_email').value, plan: document.getElementById('c_plan').value,
+      const body = { email: document.getElementById('c_Telegram').value, plan: document.getElementById('c_plan').value,
         expires_at: document.getElementById('c_expires').value + 'T23:59:59.000Z', note: document.getElementById('c_note').value };
       const res = await api('/api/licenses', { method: 'POST', body });
       closeModal('createModal');
@@ -325,7 +325,7 @@
 
     function editLicense(l) {
       document.getElementById('e_id').value = l.id;
-      document.getElementById('e_email').value = l.email;
+      document.getElementById('e_Telegram').value = l.email;
       document.getElementById('e_plan').value = l.plan;
       document.getElementById('e_expires').value = l.expires_at ? l.expires_at.split('T')[0] : '';
       document.getElementById('e_active').value = l.is_active ? '1' : '0';
@@ -336,7 +336,7 @@
     async function updateLicense() {
       const id = document.getElementById('e_id').value;
       await api('/api/licenses/' + id, { method: 'PUT', body: {
-        email: document.getElementById('e_email').value, plan: document.getElementById('e_plan').value,
+        email: document.getElementById('e_Telegram').value, plan: document.getElementById('e_plan').value,
         expires_at: document.getElementById('e_expires').value + 'T23:59:59.000Z',
         is_active: document.getElementById('e_active').value === '1', note: document.getElementById('e_note').value
       }});
