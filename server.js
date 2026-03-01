@@ -215,7 +215,17 @@ app.get('/api/update/check', (req, res) => {
     'SELECT id, version, changelog, file_name, file_size, created_at FROM app_updates WHERE is_active = 1 ORDER BY id DESC LIMIT 1'
   ).get();
 
-  if (!latest || latest.version === currentVersion) {
+  if (!latest) {
+    return res.json({ update: false });
+  }
+
+  // Compare versions properly: only offer update if server version is newer
+  const parseVer = (v) => (v || '0.0.0').replace(/^v/i, '').split('.').map(n => parseInt(n, 10) || 0);
+  const sv = parseVer(latest.version);
+  const cv = parseVer(currentVersion);
+  const isNewer = sv[0] > cv[0] || (sv[0] === cv[0] && sv[1] > cv[1]) || (sv[0] === cv[0] && sv[1] === cv[1] && sv[2] > cv[2]);
+
+  if (!isNewer) {
     return res.json({ update: false });
   }
 
