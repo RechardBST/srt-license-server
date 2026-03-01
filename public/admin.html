@@ -6,102 +6,117 @@
   <title>RCSER Admin Panel</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0d1117; color: #e6edf3; }
 
     .topbar {
-      background: #fff; padding: 14px 28px; display: flex;
+      background: #161b22; padding: 16px 28px; display: flex;
       align-items: center; justify-content: space-between;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid #30363d;
     }
-    .topbar h1 { font-size: 18px; }
-    .topbar-right { display: flex; gap: 12px; align-items: center; }
-    .topbar-right a { color: #6b7280; text-decoration: none; font-size: 13px; }
-    .topbar-right a:hover { color: #1b7ade; }
+    .topbar h1 { font-size: 18px; color: #58a6ff; font-weight: 700; }
+    .topbar-right { display: flex; gap: 14px; align-items: center; }
+    .topbar-right a { color: #8b949e; text-decoration: none; font-size: 13px; transition: color 0.2s; }
+    .topbar-right a:hover { color: #58a6ff; }
 
-    .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
 
     .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
     .stat-card {
-      background: #fff; border-radius: 10px; padding: 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      background: #161b22; border-radius: 12px; padding: 20px;
+      border: 1px solid #30363d; transition: border-color 0.2s;
     }
-    .stat-card .label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
-    .stat-card .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+    .stat-card:hover { border-color: #58a6ff; }
+    .stat-card .label { font-size: 11px; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; }
+    .stat-card .value { font-size: 32px; font-weight: 700; margin-top: 6px; }
 
     .panel {
-      background: #fff; border-radius: 10px; padding: 24px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 24px;
+      background: #161b22; border-radius: 12px; padding: 24px;
+      border: 1px solid #30363d; margin-bottom: 24px;
     }
     .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-    .panel-header h2 { font-size: 16px; }
+    .panel-header h2 { font-size: 16px; color: #e6edf3; }
 
     .btn {
-      padding: 8px 16px; border: none; border-radius: 7px;
+      padding: 8px 16px; border: none; border-radius: 8px;
       font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
     }
-    .btn-primary { background: #1b7ade; color: #fff; }
-    .btn-primary:hover { background: #1565c0; }
-    .btn-danger { background: #fee2e2; color: #dc2626; }
-    .btn-danger:hover { background: #fecaca; }
+    .btn-primary { background: #238636; color: #fff; }
+    .btn-primary:hover { background: #2ea043; }
+    .btn-blue { background: #1f6feb; color: #fff; }
+    .btn-blue:hover { background: #388bfd; }
+    .btn-danger { background: rgba(248,81,73,0.1); color: #f85149; border: 1px solid rgba(248,81,73,0.3); }
+    .btn-danger:hover { background: rgba(248,81,73,0.2); }
     .btn-sm { padding: 5px 10px; font-size: 12px; }
-    .btn-ghost { background: #f3f4f6; color: #374151; }
-    .btn-ghost:hover { background: #e5e7eb; }
+    .btn-ghost { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
+    .btn-ghost:hover { background: #30363d; border-color: #8b949e; }
+    .btn-warn { background: rgba(210,153,34,0.1); color: #d29922; border: 1px solid rgba(210,153,34,0.3); }
+    .btn-warn:hover { background: rgba(210,153,34,0.2); }
+    .btn-success { background: rgba(63,185,80,0.1); color: #3fb950; border: 1px solid rgba(63,185,80,0.3); }
+    .btn-success:hover { background: rgba(63,185,80,0.2); }
 
     table { width: 100%; border-collapse: collapse; }
-    th { text-align: left; font-size: 12px; color: #6b7280; padding: 10px 12px;
-         border-bottom: 1px solid #e5e7eb; text-transform: uppercase; letter-spacing: 0.5px; }
-    td { padding: 12px; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
-    tr:hover td { background: #f9fafb; }
+    th { text-align: left; font-size: 11px; color: #8b949e; padding: 10px 12px;
+         border-bottom: 1px solid #30363d; text-transform: uppercase; letter-spacing: 0.8px; }
+    td { padding: 12px; border-bottom: 1px solid #21262d; font-size: 13px; color: #c9d1d9; }
+    tr:hover td { background: #1c2128; }
 
     .badge {
       display: inline-block; padding: 3px 10px; border-radius: 20px;
       font-size: 11px; font-weight: 600;
     }
-    .badge-green { background: #dcfce7; color: #16a34a; }
-    .badge-red { background: #fee2e2; color: #dc2626; }
-    .badge-gray { background: #f3f4f6; color: #6b7280; }
-    .badge-blue { background: #dbeafe; color: #2563eb; }
+    .badge-green { background: rgba(63,185,80,0.15); color: #3fb950; }
+    .badge-red { background: rgba(248,81,73,0.15); color: #f85149; }
+    .badge-gray { background: rgba(139,148,158,0.15); color: #8b949e; }
+    .badge-blue { background: rgba(56,139,253,0.15); color: #58a6ff; }
+    .badge-yellow { background: rgba(210,153,34,0.15); color: #d29922; }
 
-    .key-text { font-family: 'Consolas', monospace; font-size: 12px; color: #1b7ade; }
+    .key-text { font-family: 'Consolas', 'Fira Code', monospace; font-size: 12px; color: #58a6ff; }
 
-    /* Modal */
     .modal-overlay {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
       z-index: 100; align-items: center; justify-content: center;
+      backdrop-filter: blur(4px);
     }
     .modal-overlay.active { display: flex; }
     .modal {
-      background: #fff; border-radius: 12px; padding: 28px;
-      width: 440px; max-height: 90vh; overflow-y: auto;
+      background: #161b22; border: 1px solid #30363d; border-radius: 14px;
+      padding: 28px; width: 460px; max-height: 90vh; overflow-y: auto;
     }
-    .modal h3 { font-size: 17px; margin-bottom: 18px; }
+    .modal h3 { font-size: 17px; margin-bottom: 18px; color: #e6edf3; }
     .form-group { margin-bottom: 14px; }
-    .form-group label { display: block; font-size: 13px; color: #374151; margin-bottom: 4px; font-weight: 500; }
+    .form-group label { display: block; font-size: 13px; color: #8b949e; margin-bottom: 5px; font-weight: 500; }
     .form-group input, .form-group select, .form-group textarea {
-      width: 100%; padding: 9px 12px; border: 1px solid #d1d5db;
-      border-radius: 7px; font-size: 13px; outline: none;
+      width: 100%; padding: 10px 12px; border: 1px solid #30363d;
+      border-radius: 8px; font-size: 13px; outline: none;
+      background: #0d1117; color: #e6edf3; transition: border-color 0.2s;
     }
-    .form-group input:focus, .form-group select:focus { border-color: #1b7ade; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #58a6ff; }
+    .form-group select option { background: #161b22; }
     .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
-    .tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: #161b22; border-radius: 10px; padding: 4px; border: 1px solid #30363d; width: fit-content; }
     .tab {
-      padding: 8px 18px; border-radius: 7px; font-size: 13px;
-      cursor: pointer; border: none; background: transparent; color: #6b7280;
+      padding: 8px 20px; border-radius: 8px; font-size: 13px;
+      cursor: pointer; border: none; background: transparent; color: #8b949e; transition: all 0.2s;
     }
-    .tab.active { background: #1b7ade; color: #fff; }
-    .tab:hover:not(.active) { background: #f3f4f6; }
+    .tab.active { background: #1f6feb; color: #fff; }
+    .tab:hover:not(.active) { background: #21262d; color: #c9d1d9; }
 
     .hidden { display: none; }
-    .actions-cell { display: flex; gap: 6px; }
+    .actions-cell { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0d1117; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #484f58; }
   </style>
 </head>
 <body>
   <div class="topbar">
-    <h1>RCSER License Manager</h1>
+    <h1>⚡ RCSER Admin</h1>
     <div class="topbar-right">
-      <a href="#" onclick="showPasswordModal()">Change Password</a>
-      <a href="/admin/logout">Logout</a>
+      <a href="#" onclick="showPasswordModal()">🔑 Change Password</a>
+      <a href="/admin/logout">🚪 Logout</a>
     </div>
   </div>
 
@@ -109,9 +124,9 @@
     <div class="stats" id="stats"></div>
 
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('licenses', this)">Licenses</button>
-      <button class="tab" onclick="switchTab('logs', this)">Activation Logs</button>
-      <button class="tab" onclick="switchTab('updates', this)">Updates</button>
+      <button class="tab active" onclick="switchTab('licenses', this)">📋 Licenses</button>
+      <button class="tab" onclick="switchTab('logs', this)">📊 Logs</button>
+      <button class="tab" onclick="switchTab('updates', this)">🚀 Updates</button>
     </div>
 
     <div id="tab-licenses" class="panel">
@@ -121,10 +136,7 @@
       </div>
       <table>
         <thead>
-          <tr>
-            <th>Key</th><th>Email</th><th>Plan</th>
-            <th>Status</th><th>Expires</th><th>HWID</th><th>Actions</th>
-          </tr>
+          <tr><th>Key</th><th>Email</th><th>Plan</th><th>Status</th><th>Expires</th><th>HWID</th><th>Actions</th></tr>
         </thead>
         <tbody id="license-table"></tbody>
       </table>
@@ -143,11 +155,11 @@
     <div id="tab-updates" class="panel hidden">
       <div class="panel-header">
         <h2>App Updates</h2>
-        <button class="btn btn-primary" onclick="showUploadModal()">+ Upload Update</button>
+        <button class="btn btn-blue" onclick="showUploadModal()">⬆ Upload Update</button>
       </div>
       <table>
         <thead>
-          <tr><th>Version</th><th>File</th><th>Size</th><th>Changelog</th><th>Uploaded</th><th>Actions</th></tr>
+          <tr><th>Version</th><th>File</th><th>Size</th><th>Status</th><th>Changelog</th><th>Uploaded</th><th>Actions</th></tr>
         </thead>
         <tbody id="updates-table"></tbody>
       </table>
@@ -158,26 +170,12 @@
   <div class="modal-overlay" id="createModal">
     <div class="modal">
       <h3>Create New License</h3>
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="c_email" placeholder="user@example.com">
+      <div class="form-group"><label>Email</label><input type="email" id="c_email" placeholder="user@example.com"></div>
+      <div class="form-group"><label>Plan</label>
+        <select id="c_plan"><option value="Standard">Standard</option><option value="Pro">Pro</option><option value="Lifetime">Lifetime</option></select>
       </div>
-      <div class="form-group">
-        <label>Plan</label>
-        <select id="c_plan">
-          <option value="Standard">Standard</option>
-          <option value="Pro">Pro</option>
-          <option value="Lifetime">Lifetime</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Expires At</label>
-        <input type="date" id="c_expires">
-      </div>
-      <div class="form-group">
-        <label>Note (optional)</label>
-        <input type="text" id="c_note" placeholder="Internal note">
-      </div>
+      <div class="form-group"><label>Expires At</label><input type="date" id="c_expires"></div>
+      <div class="form-group"><label>Note (optional)</label><input type="text" id="c_note" placeholder="Internal note"></div>
       <div class="form-actions">
         <button class="btn btn-ghost" onclick="closeModal('createModal')">Cancel</button>
         <button class="btn btn-primary" onclick="createLicense()">Create</button>
@@ -190,36 +188,18 @@
     <div class="modal">
       <h3>Edit License</h3>
       <input type="hidden" id="e_id">
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="e_email">
+      <div class="form-group"><label>Email</label><input type="email" id="e_email"></div>
+      <div class="form-group"><label>Plan</label>
+        <select id="e_plan"><option value="Standard">Standard</option><option value="Pro">Pro</option><option value="Lifetime">Lifetime</option></select>
       </div>
-      <div class="form-group">
-        <label>Plan</label>
-        <select id="e_plan">
-          <option value="Standard">Standard</option>
-          <option value="Pro">Pro</option>
-          <option value="Lifetime">Lifetime</option>
-        </select>
+      <div class="form-group"><label>Expires At</label><input type="date" id="e_expires"></div>
+      <div class="form-group"><label>Active</label>
+        <select id="e_active"><option value="1">Yes</option><option value="0">No (Disabled)</option></select>
       </div>
-      <div class="form-group">
-        <label>Expires At</label>
-        <input type="date" id="e_expires">
-      </div>
-      <div class="form-group">
-        <label>Active</label>
-        <select id="e_active">
-          <option value="1">Yes</option>
-          <option value="0">No (Disabled)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Note</label>
-        <input type="text" id="e_note">
-      </div>
+      <div class="form-group"><label>Note</label><input type="text" id="e_note"></div>
       <div class="form-actions">
         <button class="btn btn-ghost" onclick="closeModal('editModal')">Cancel</button>
-        <button class="btn btn-primary" onclick="updateLicense()">Save</button>
+        <button class="btn btn-blue" onclick="updateLicense()">Save</button>
       </div>
     </div>
   </div>
@@ -227,18 +207,12 @@
   <!-- Change Password Modal -->
   <div class="modal-overlay" id="passwordModal">
     <div class="modal">
-      <h3>Change Password</h3>
-      <div class="form-group">
-        <label>Current Password</label>
-        <input type="password" id="p_current">
-      </div>
-      <div class="form-group">
-        <label>New Password</label>
-        <input type="password" id="p_new">
-      </div>
+      <h3>🔑 Change Password</h3>
+      <div class="form-group"><label>Current Password</label><input type="password" id="p_current"></div>
+      <div class="form-group"><label>New Password</label><input type="password" id="p_new"></div>
       <div class="form-actions">
         <button class="btn btn-ghost" onclick="closeModal('passwordModal')">Cancel</button>
-        <button class="btn btn-primary" onclick="changePassword()">Change</button>
+        <button class="btn btn-blue" onclick="changePassword()">Change</button>
       </div>
     </div>
   </div>
@@ -246,11 +220,11 @@
   <!-- Key Created Modal -->
   <div class="modal-overlay" id="keyModal">
     <div class="modal" style="text-align:center">
-      <h3>License Created</h3>
-      <p style="margin:16px 0 8px;color:#6b7280;font-size:13px">Send this key to the user:</p>
-      <p class="key-text" id="newKeyDisplay" style="font-size:18px;padding:14px;background:#f0f7ff;border-radius:8px;user-select:all"></p>
+      <h3>✅ License Created</h3>
+      <p style="margin:16px 0 8px;color:#8b949e;font-size:13px">Send this key to the user:</p>
+      <p class="key-text" id="newKeyDisplay" style="font-size:18px;padding:16px;background:#0d1117;border-radius:10px;border:1px solid #30363d;user-select:all"></p>
       <div class="form-actions" style="justify-content:center;margin-top:18px">
-        <button class="btn btn-ghost" onclick="copyKey()">Copy</button>
+        <button class="btn btn-ghost" onclick="copyKey()">📋 Copy</button>
         <button class="btn btn-primary" onclick="closeModal('keyModal');loadLicenses()">Done</button>
       </div>
     </div>
@@ -259,45 +233,32 @@
   <!-- Upload Update Modal -->
   <div class="modal-overlay" id="uploadModal">
     <div class="modal">
-      <h3>Upload New Update</h3>
-      <div class="form-group">
-        <label>Version (e.g. 1.3.0)</label>
-        <input type="text" id="u_version" placeholder="1.3.0">
-      </div>
-      <div class="form-group">
-        <label>Changelog (optional)</label>
-        <textarea id="u_changelog" rows="3" placeholder="What's new..."></textarea>
-      </div>
-      <div class="form-group">
-        <label>EXE File</label>
-        <input type="file" id="u_file" accept=".exe">
-      </div>
-      <div id="u_progress" style="display:none;margin-top:10px">
-        <div style="background:#e5e7eb;border-radius:6px;overflow:hidden;height:8px">
-          <div id="u_bar" style="background:#1b7ade;height:100%;width:0%;transition:width 0.3s"></div>
+      <h3>⬆ Upload New Update</h3>
+      <div class="form-group"><label>Version (e.g. 2.1.0)</label><input type="text" id="u_version" placeholder="2.1.0"></div>
+      <div class="form-group"><label>Changelog (optional)</label><textarea id="u_changelog" rows="3" placeholder="What's new..." style="resize:vertical"></textarea></div>
+      <div class="form-group"><label>EXE File</label><input type="file" id="u_file" accept=".exe"></div>
+      <div id="u_progress" style="display:none;margin-top:12px">
+        <div style="background:#21262d;border-radius:6px;overflow:hidden;height:8px">
+          <div id="u_bar" style="background:#1f6feb;height:100%;width:0%;transition:width 0.3s;border-radius:6px"></div>
         </div>
-        <p id="u_status" style="font-size:12px;color:#6b7280;margin-top:4px">Uploading...</p>
+        <p id="u_status" style="font-size:12px;color:#8b949e;margin-top:6px">Uploading...</p>
       </div>
       <div class="form-actions">
         <button class="btn btn-ghost" onclick="closeModal('uploadModal')">Cancel</button>
-        <button class="btn btn-primary" id="u_btn" onclick="uploadUpdate()">Upload</button>
+        <button class="btn btn-blue" id="u_btn" onclick="uploadUpdate()">Upload</button>
       </div>
     </div>
   </div>
 
   <script>
-    // --- Tabs ---
     function switchTab(name, el) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       el.classList.add('active');
-      document.getElementById('tab-licenses').classList.toggle('hidden', name !== 'licenses');
-      document.getElementById('tab-logs').classList.toggle('hidden', name !== 'logs');
-      document.getElementById('tab-updates').classList.toggle('hidden', name !== 'updates');
+      ['licenses','logs','updates'].forEach(n => document.getElementById('tab-'+n).classList.toggle('hidden', n !== name));
       if (name === 'logs') loadLogs();
       if (name === 'updates') loadUpdates();
     }
 
-    // --- Modals ---
     function showCreateModal() {
       const d = new Date(); d.setMonth(d.getMonth() + 1);
       document.getElementById('c_expires').value = d.toISOString().split('T')[0];
@@ -308,23 +269,18 @@
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
     function showPasswordModal() { document.getElementById('passwordModal').classList.add('active'); }
 
-    // --- API calls ---
     async function api(url, opts = {}) {
-      const res = await fetch(url, {
-        headers: { 'Content-Type': 'application/json' },
-        ...opts,
-        body: opts.body ? JSON.stringify(opts.body) : undefined
-      });
+      const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...opts, body: opts.body ? JSON.stringify(opts.body) : undefined });
       return res.json();
     }
 
     async function loadStats() {
       const s = await api('/api/stats');
       document.getElementById('stats').innerHTML = `
-        <div class="stat-card"><div class="label">Total Licenses</div><div class="value">${s.total}</div></div>
-        <div class="stat-card"><div class="label">Active</div><div class="value" style="color:#16a34a">${s.active}</div></div>
-        <div class="stat-card"><div class="label">Expired</div><div class="value" style="color:#dc2626">${s.expired}</div></div>
-        <div class="stat-card"><div class="label">Today's Activations</div><div class="value" style="color:#1b7ade">${s.todayActivations}</div></div>
+        <div class="stat-card"><div class="label">Total Licenses</div><div class="value" style="color:#e6edf3">${s.total}</div></div>
+        <div class="stat-card"><div class="label">Active</div><div class="value" style="color:#3fb950">${s.active}</div></div>
+        <div class="stat-card"><div class="label">Expired</div><div class="value" style="color:#f85149">${s.expired}</div></div>
+        <div class="stat-card"><div class="label">Today's Activations</div><div class="value" style="color:#58a6ff">${s.todayActivations}</div></div>
       `;
     }
 
@@ -335,11 +291,9 @@
         const expired = l.expires_at < now;
         const statusBadge = !l.is_active
           ? '<span class="badge badge-red">Disabled</span>'
-          : expired
-            ? '<span class="badge badge-red">Expired</span>'
-            : '<span class="badge badge-green">Active</span>';
+          : expired ? '<span class="badge badge-yellow">Expired</span>' : '<span class="badge badge-green">Active</span>';
         const hwidText = l.hwid
-          ? '<span class="badge badge-blue">' + l.hwid.substring(0, 8) + '...</span>'
+          ? '<span class="badge badge-blue">' + l.hwid.substring(0, 8) + '…</span>'
           : '<span class="badge badge-gray">Not bound</span>';
         return `<tr>
           <td class="key-text">${l.license_key}</td>
@@ -351,9 +305,9 @@
           <td class="actions-cell">
             <button class="btn btn-ghost btn-sm" onclick='editLicense(${JSON.stringify(l)})'>Edit</button>
             ${l.is_active
-              ? `<button class="btn btn-danger btn-sm" onclick="toggleActive(${l.id}, false)">Deactivate</button>`
-              : `<button class="btn btn-sm" style="background:#dcfce7;color:#16a34a" onclick="toggleActive(${l.id}, true)">Activate</button>`}
-            ${l.hwid ? `<button class="btn btn-ghost btn-sm" onclick="resetHwid(${l.id})">Reset HWID</button>` : ''}
+              ? `<button class="btn btn-danger btn-sm" onclick="toggleActive(${l.id}, false)">Disable</button>`
+              : `<button class="btn btn-success btn-sm" onclick="toggleActive(${l.id}, true)">Enable</button>`}
+            ${l.hwid ? `<button class="btn btn-warn btn-sm" onclick="resetHwid(${l.id})">Reset HWID</button>` : ''}
             <button class="btn btn-danger btn-sm" onclick="deleteLicense(${l.id})">Delete</button>
           </td>
         </tr>`;
@@ -362,18 +316,11 @@
     }
 
     async function createLicense() {
-      const body = {
-        email: document.getElementById('c_email').value,
-        plan: document.getElementById('c_plan').value,
-        expires_at: document.getElementById('c_expires').value + 'T23:59:59.000Z',
-        note: document.getElementById('c_note').value
-      };
+      const body = { email: document.getElementById('c_email').value, plan: document.getElementById('c_plan').value,
+        expires_at: document.getElementById('c_expires').value + 'T23:59:59.000Z', note: document.getElementById('c_note').value };
       const res = await api('/api/licenses', { method: 'POST', body });
       closeModal('createModal');
-      if (res.key) {
-        document.getElementById('newKeyDisplay').textContent = res.key;
-        document.getElementById('keyModal').classList.add('active');
-      }
+      if (res.key) { document.getElementById('newKeyDisplay').textContent = res.key; document.getElementById('keyModal').classList.add('active'); }
     }
 
     function editLicense(l) {
@@ -388,81 +335,41 @@
 
     async function updateLicense() {
       const id = document.getElementById('e_id').value;
-      const body = {
-        email: document.getElementById('e_email').value,
-        plan: document.getElementById('e_plan').value,
+      await api('/api/licenses/' + id, { method: 'PUT', body: {
+        email: document.getElementById('e_email').value, plan: document.getElementById('e_plan').value,
         expires_at: document.getElementById('e_expires').value + 'T23:59:59.000Z',
-        is_active: document.getElementById('e_active').value === '1',
-        note: document.getElementById('e_note').value
-      };
-      await api('/api/licenses/' + id, { method: 'PUT', body });
-      closeModal('editModal');
-      loadLicenses();
+        is_active: document.getElementById('e_active').value === '1', note: document.getElementById('e_note').value
+      }});
+      closeModal('editModal'); loadLicenses();
     }
 
-    async function deleteLicense(id) {
-      if (!confirm('Delete this license permanently?')) return;
-      await api('/api/licenses/' + id, { method: 'DELETE' });
-      loadLicenses();
-    }
-
-    async function resetHwid(id) {
-      if (!confirm('Reset HWID binding? User will need to re-activate.')) return;
-      await api('/api/licenses/' + id + '/reset-hwid', { method: 'POST' });
-      loadLicenses();
-    }
-
+    async function deleteLicense(id) { if (!confirm('Delete this license permanently?')) return; await api('/api/licenses/' + id, { method: 'DELETE' }); loadLicenses(); }
+    async function resetHwid(id) { if (!confirm('Reset HWID? User will need to re-activate.')) return; await api('/api/licenses/' + id + '/reset-hwid', { method: 'POST' }); loadLicenses(); }
     async function toggleActive(id, activate) {
-      const action = activate ? 'activate' : 'deactivate';
-      if (!confirm(activate ? 'Activate this license?' : 'Deactivate this license? User will lose access.')) return;
-      await api('/api/licenses/' + id + '/toggle-active', { method: 'POST', body: { is_active: activate } });
-      loadLicenses();
+      if (!confirm(activate ? 'Enable this license?' : 'Disable this license? User will lose access.')) return;
+      await api('/api/licenses/' + id + '/toggle-active', { method: 'POST', body: { is_active: activate } }); loadLicenses();
     }
-
-    function copyKey() {
-      const key = document.getElementById('newKeyDisplay').textContent;
-      navigator.clipboard.writeText(key);
-    }
+    function copyKey() { navigator.clipboard.writeText(document.getElementById('newKeyDisplay').textContent); }
 
     async function loadLogs() {
       const data = await api('/api/logs');
-      document.getElementById('log-table').innerHTML = data.map(l => {
-        const actionColors = {
-          validate_success: 'badge-green',
-          validate_not_found: 'badge-red',
-          validate_expired: 'badge-red',
-          validate_disabled: 'badge-red',
-          validate_email_mismatch: 'badge-red',
-          validate_hwid_mismatch: 'badge-red'
-        };
-        return `<tr>
-          <td>${new Date(l.created_at + 'Z').toLocaleString()}</td>
-          <td class="key-text">${l.license_key || '—'}</td>
-          <td>${l.email || '—'}</td>
-          <td><span class="badge ${actionColors[l.action] || 'badge-gray'}">${l.action}</span></td>
-          <td>${l.ip || '—'}</td>
-          <td style="font-size:11px">${l.hwid ? l.hwid.substring(0, 12) + '...' : '—'}</td>
-        </tr>`;
-      }).join('');
+      const colors = { validate_success:'badge-green', validate_not_found:'badge-red', validate_expired:'badge-yellow',
+        validate_disabled:'badge-red', validate_email_mismatch:'badge-red', validate_hwid_mismatch:'badge-red' };
+      document.getElementById('log-table').innerHTML = data.map(l => `<tr>
+        <td>${new Date(l.created_at + 'Z').toLocaleString()}</td>
+        <td class="key-text">${l.license_key || '—'}</td><td>${l.email || '—'}</td>
+        <td><span class="badge ${colors[l.action] || 'badge-gray'}">${l.action}</span></td>
+        <td>${l.ip || '—'}</td><td style="font-size:11px">${l.hwid ? l.hwid.substring(0, 12) + '…' : '—'}</td>
+      </tr>`).join('');
     }
 
     async function changePassword() {
-      const res = await api('/admin/change-password', {
-        method: 'POST',
-        body: {
-          current_password: document.getElementById('p_current').value,
-          new_password: document.getElementById('p_new').value
-        }
-      });
-      if (res.success) {
-        alert('Password changed. Please log in again.');
-        location.href = '/admin/login';
-      } else {
-        alert(res.error || 'Failed to change password.');
-      }
+      const res = await api('/admin/change-password', { method: 'POST', body: {
+        current_password: document.getElementById('p_current').value, new_password: document.getElementById('p_new').value }});
+      if (res.success) { alert('Password changed. Please log in again.'); location.href = '/admin/login'; }
+      else alert(res.error || 'Failed.');
     }
 
-    // --- Updates ---
     function showUploadModal() {
       document.getElementById('u_version').value = '';
       document.getElementById('u_changelog').value = '';
@@ -474,72 +381,46 @@
 
     async function uploadUpdate() {
       const version = document.getElementById('u_version').value.trim();
-      const changelog = document.getElementById('u_changelog').value.trim();
       const fileInput = document.getElementById('u_file');
-
-      if (!version || !fileInput.files.length) {
-        alert('Version and file are required');
-        return;
-      }
-
+      if (!version || !fileInput.files.length) { alert('Version and file are required'); return; }
       document.getElementById('u_btn').disabled = true;
       document.getElementById('u_progress').style.display = 'block';
-
-      const formData = new FormData();
-      formData.append('version', version);
-      formData.append('changelog', changelog);
-      formData.append('file', fileInput.files[0]);
-
+      const fd = new FormData();
+      fd.append('version', version);
+      fd.append('changelog', document.getElementById('u_changelog').value.trim());
+      fd.append('file', fileInput.files[0]);
       const xhr = new XMLHttpRequest();
       xhr.open('POST', '/api/updates');
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          const pct = Math.round(e.loaded / e.total * 100);
-          document.getElementById('u_bar').style.width = pct + '%';
-          document.getElementById('u_status').textContent = pct + '% uploaded';
-        }
-      };
-      xhr.onload = () => {
-        if (xhr.status === 200) {
-          closeModal('uploadModal');
-          loadUpdates();
-        } else {
-          alert('Upload failed');
-          document.getElementById('u_btn').disabled = false;
-        }
-      };
-      xhr.onerror = () => {
-        alert('Upload error');
-        document.getElementById('u_btn').disabled = false;
-      };
-      xhr.send(formData);
+      xhr.upload.onprogress = (e) => { if (e.lengthComputable) {
+        const p = Math.round(e.loaded/e.total*100);
+        document.getElementById('u_bar').style.width = p+'%';
+        document.getElementById('u_status').textContent = p+'% uploaded';
+      }};
+      xhr.onload = () => { if (xhr.status===200) { closeModal('uploadModal'); loadUpdates(); } else { alert('Upload failed'); document.getElementById('u_btn').disabled=false; }};
+      xhr.onerror = () => { alert('Upload error'); document.getElementById('u_btn').disabled=false; };
+      xhr.send(fd);
     }
 
     async function loadUpdates() {
       const data = await api('/api/updates');
       document.getElementById('updates-table').innerHTML = data.map(u => {
         const sizeMB = (u.file_size / 1024 / 1024).toFixed(2);
+        const statusBadge = u.is_active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Old</span>';
         return `<tr>
-          <td><span class="badge badge-blue">${u.version}</span></td>
-          <td>${u.file_name}</td>
-          <td>${sizeMB} MB</td>
+          <td><span class="badge badge-blue">v${u.version}</span></td>
+          <td>${u.file_name}</td><td>${sizeMB} MB</td><td>${statusBadge}</td>
           <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis">${u.changelog || '—'}</td>
           <td>${new Date(u.created_at + 'Z').toLocaleString()}</td>
           <td class="actions-cell">
-            <a href="/api/update/download" class="btn btn-ghost btn-sm">Download</a>
+            <a href="/api/update/download" class="btn btn-ghost btn-sm">⬇ Download</a>
             <button class="btn btn-danger btn-sm" onclick="deleteUpdate(${u.id})">Delete</button>
           </td>
         </tr>`;
       }).join('');
     }
 
-    async function deleteUpdate(id) {
-      if (!confirm('Delete this update?')) return;
-      await api('/api/updates/' + id, { method: 'DELETE' });
-      loadUpdates();
-    }
+    async function deleteUpdate(id) { if (!confirm('Delete this update?')) return; await api('/api/updates/' + id, { method: 'DELETE' }); loadUpdates(); }
 
-    // Init
     loadLicenses();
   </script>
 </body>
