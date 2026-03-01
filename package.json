@@ -1,0 +1,17 @@
+{
+  "name": "srt-license-server",
+  "version": "1.0.0",
+  "description": "License server for Steam Route Tool",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.7.0",
+    "express": "^4.21.0",
+    "bcrypt": "^5.1.1",
+    "crypto": "^1.0.1",
+    "cookie-parser": "^1.4.6"
+  }
+}

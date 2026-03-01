@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SRT Admin Panel</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+    .topbar {
+      background: #fff; padding: 14px 28px; display: flex;
+      align-items: center; justify-content: space-between;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .topbar h1 { font-size: 18px; }
+    .topbar-right { display: flex; gap: 12px; align-items: center; }
+    .topbar-right a { color: #6b7280; text-decoration: none; font-size: 13px; }
+    .topbar-right a:hover { color: #1b7ade; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+      background: #fff; border-radius: 10px; padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .stat-card .label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-card .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+
+    .panel {
+      background: #fff; border-radius: 10px; padding: 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 24px;
+    }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .panel-header h2 { font-size: 16px; }
+
+    .btn {
+      padding: 8px 16px; border: none; border-radius: 7px;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-primary { background: #1b7ade; color: #fff; }
+    .btn-primary:hover { background: #1565c0; }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
+    .btn-ghost { background: #f3f4f6; color: #374151; }
+    .btn-ghost:hover { background: #e5e7eb; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; font-size: 12px; color: #6b7280; padding: 10px 12px;
+         border-bottom: 1px solid #e5e7eb; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { padding: 12px; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
+    tr:hover td { background: #f9fafb; }
+
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+    }
+    .badge-green { background: #dcfce7; color: #16a34a; }
+    .badge-red { background: #fee2e2; color: #dc2626; }
+    .badge-gray { background: #f3f4f6; color: #6b7280; }
+    .badge-blue { background: #dbeafe; color: #2563eb; }
+
+    .key-text { font-family: 'Consolas', monospace; font-size: 12px; color: #1b7ade; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+      z-index: 100; align-items: center; justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: #fff; border-radius: 12px; padding: 28px;
+      width: 440px; max-height: 90vh; overflow-y: auto;
+    }
+    .modal h3 { font-size: 17px; margin-bottom: 18px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 13px; color: #374151; margin-bottom: 4px; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 9px 12px; border: 1px solid #d1d5db;
+      border-radius: 7px; font-size: 13px; outline: none;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: #1b7ade; }
+    .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+    .tab {
+      padding: 8px 18px; border-radius: 7px; font-size: 13px;
+      cursor: pointer; border: none; background: transparent; color: #6b7280;
+    }
+    .tab.active { background: #1b7ade; color: #fff; }
+    .tab:hover:not(.active) { background: #f3f4f6; }
+
+    .hidden { display: none; }
+    .actions-cell { display: flex; gap: 6px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>SRT License Manager</h1>
+    <div class="topbar-right">
+      <a href="#" onclick="showPasswordModal()">Change Password</a>
+      <a href="/admin/logout">Logout</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats" id="stats"></div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('licenses', this)">Licenses</button>
+      <button class="tab" onclick="switchTab('logs', this)">Activation Logs</button>
+    </div>
+
+    <div id="tab-licenses" class="panel">
+      <div class="panel-header">
+        <h2>All Licenses</h2>
+        <button class="btn btn-primary" onclick="showCreateModal()">+ New License</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Key</th><th>Email</th><th>Plan</th>
+            <th>Status</th><th>Expires</th><th>HWID</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="license-table"></tbody>
+      </table>
+    </div>
+
+    <div id="tab-logs" class="panel hidden">
+      <div class="panel-header"><h2>Activation Logs</h2></div>
+      <table>
+        <thead>
+          <tr><th>Time</th><th>Key</th><th>Email</th><th>Action</th><th>IP</th><th>HWID</th></tr>
+        </thead>
+        <tbody id="log-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Create License Modal -->
+  <div class="modal-overlay" id="createModal">
+    <div class="modal">
+      <h3>Create New License</h3>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="c_email" placeholder="user@example.com">
+      </div>
+      <div class="form-group">
+        <label>Plan</label>
+        <select id="c_plan">
+          <option value="Standard">Standard</option>
+          <option value="Pro">Pro</option>
+          <option value="Lifetime">Lifetime</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Expires At</label>
+        <input type="date" id="c_expires">
+      </div>
+      <div class="form-group">
+        <label>Note (optional)</label>
+        <input type="text" id="c_note" placeholder="Internal note">
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="closeModal('createModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="createLicense()">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit License Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <h3>Edit License</h3>
+      <input type="hidden" id="e_id">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="e_email">
+      </div>
+      <div class="form-group">
+        <label>Plan</label>
+        <select id="e_plan">
+          <option value="Standard">Standard</option>
+          <option value="Pro">Pro</option>
+          <option value="Lifetime">Lifetime</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Expires At</label>
+        <input type="date" id="e_expires">
+      </div>
+      <div class="form-group">
+        <label>Active</label>
+        <select id="e_active">
+          <option value="1">Yes</option>
+          <option value="0">No (Disabled)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Note</label>
+        <input type="text" id="e_note">
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="closeModal('editModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="updateLicense()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div class="modal-overlay" id="passwordModal">
+    <div class="modal">
+      <h3>Change Password</h3>
+      <div class="form-group">
+        <label>Current Password</label>
+        <input type="password" id="p_current">
+      </div>
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" id="p_new">
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="closeModal('passwordModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="changePassword()">Change</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Created Modal -->
+  <div class="modal-overlay" id="keyModal">
+    <div class="modal" style="text-align:center">
+      <h3>License Created</h3>
+      <p style="margin:16px 0 8px;color:#6b7280;font-size:13px">Send this key to the user:</p>
+      <p class="key-text" id="newKeyDisplay" style="font-size:18px;padding:14px;background:#f0f7ff;border-radius:8px;user-select:all"></p>
+      <div class="form-actions" style="justify-content:center;margin-top:18px">
+        <button class="btn btn-ghost" onclick="copyKey()">Copy</button>
+        <button class="btn btn-primary" onclick="closeModal('keyModal');loadLicenses()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Tabs ---
+    function switchTab(name, el) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('tab-licenses').classList.toggle('hidden', name !== 'licenses');
+      document.getElementById('tab-logs').classList.toggle('hidden', name !== 'logs');
+      if (name === 'logs') loadLogs();
+    }
+
+    // --- Modals ---
+    function showCreateModal() {
+      const d = new Date(); d.setMonth(d.getMonth() + 1);
+      document.getElementById('c_expires').value = d.toISOString().split('T')[0];
+      document.getElementById('c_email').value = '';
+      document.getElementById('c_note').value = '';
+      document.getElementById('createModal').classList.add('active');
+    }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function showPasswordModal() { document.getElementById('passwordModal').classList.add('active'); }
+
+    // --- API calls ---
+    async function api(url, opts = {}) {
+      const res = await fetch(url, {
+        headers: { 'Content-Type': 'application/json' },
+        ...opts,
+        body: opts.body ? JSON.stringify(opts.body) : undefined
+      });
+      return res.json();
+    }
+
+    async function loadStats() {
+      const s = await api('/api/stats');
+      document.getElementById('stats').innerHTML = `
+        <div class="stat-card"><div class="label">Total Licenses</div><div class="value">${s.total}</div></div>
+        <div class="stat-card"><div class="label">Active</div><div class="value" style="color:#16a34a">${s.active}</div></div>
+        <div class="stat-card"><div class="label">Expired</div><div class="value" style="color:#dc2626">${s.expired}</div></div>
+        <div class="stat-card"><div class="label">Today's Activations</div><div class="value" style="color:#1b7ade">${s.todayActivations}</div></div>
+      `;
+    }
+
+    async function loadLicenses() {
+      const data = await api('/api/licenses');
+      const now = new Date().toISOString();
+      document.getElementById('license-table').innerHTML = data.map(l => {
+        const expired = l.expires_at < now;
+        const statusBadge = !l.is_active
+          ? '<span class="badge badge-red">Disabled</span>'
+          : expired
+            ? '<span class="badge badge-red">Expired</span>'
+            : '<span class="badge badge-green">Active</span>';
+        const hwidText = l.hwid
+          ? '<span class="badge badge-blue">' + l.hwid.substring(0, 8) + '...</span>'
+          : '<span class="badge badge-gray">Not bound</span>';
+        return `<tr>
+          <td class="key-text">${l.license_key}</td>
+          <td>${l.email}</td>
+          <td><span class="badge badge-gray">${l.plan}</span></td>
+          <td>${statusBadge}</td>
+          <td>${l.expires_at ? l.expires_at.split('T')[0] : '—'}</td>
+          <td>${hwidText}</td>
+          <td class="actions-cell">
+            <button class="btn btn-ghost btn-sm" onclick='editLicense(${JSON.stringify(l)})'>Edit</button>
+            ${l.hwid ? `<button class="btn btn-ghost btn-sm" onclick="resetHwid(${l.id})">Reset HWID</button>` : ''}
+            <button class="btn btn-danger btn-sm" onclick="deleteLicense(${l.id})">Delete</button>
+          </td>
+        </tr>`;
+      }).join('');
+      loadStats();
+    }
+
+    async function createLicense() {
+      const body = {
+        email: document.getElementById('c_email').value,
+        plan: document.getElementById('c_plan').value,
+        expires_at: document.getElementById('c_expires').value + 'T23:59:59.000Z',
+        note: document.getElementById('c_note').value
+      };
+      const res = await api('/api/licenses', { method: 'POST', body });
+      closeModal('createModal');
+      if (res.key) {
+        document.getElementById('newKeyDisplay').textContent = res.key;
+        document.getElementById('keyModal').classList.add('active');
+      }
+    }
+
+    function editLicense(l) {
+      document.getElementById('e_id').value = l.id;
+      document.getElementById('e_email').value = l.email;
+      document.getElementById('e_plan').value = l.plan;
+      document.getElementById('e_expires').value = l.expires_at ? l.expires_at.split('T')[0] : '';
+      document.getElementById('e_active').value = l.is_active ? '1' : '0';
+      document.getElementById('e_note').value = l.note || '';
+      document.getElementById('editModal').classList.add('active');
+    }
+
+    async function updateLicense() {
+      const id = document.getElementById('e_id').value;
+      const body = {
+        email: document.getElementById('e_email').value,
+        plan: document.getElementById('e_plan').value,
+        expires_at: document.getElementById('e_expires').value + 'T23:59:59.000Z',
+        is_active: document.getElementById('e_active').value === '1',
+        note: document.getElementById('e_note').value
+      };
+      await api('/api/licenses/' + id, { method: 'PUT', body });
+      closeModal('editModal');
+      loadLicenses();
+    }
+
+    async function deleteLicense(id) {
+      if (!confirm('Delete this license permanently?')) return;
+      await api('/api/licenses/' + id, { method: 'DELETE' });
+      loadLicenses();
+    }
+
+    async function resetHwid(id) {
+      if (!confirm('Reset HWID binding? User will need to re-activate.')) return;
+      await api('/api/licenses/' + id + '/reset-hwid', { method: 'POST' });
+      loadLicenses();
+    }
+
+    function copyKey() {
+      const key = document.getElementById('newKeyDisplay').textContent;
+      navigator.clipboard.writeText(key);
+    }
+
+    async function loadLogs() {
+      const data = await api('/api/logs');
+      document.getElementById('log-table').innerHTML = data.map(l => {
+        const actionColors = {
+          validate_success: 'badge-green',
+          validate_not_found: 'badge-red',
+          validate_expired: 'badge-red',
+          validate_disabled: 'badge-red',
+          validate_email_mismatch: 'badge-red',
+          validate_hwid_mismatch: 'badge-red'
+        };
+        return `<tr>
+          <td>${new Date(l.created_at + 'Z').toLocaleString()}</td>
+          <td class="key-text">${l.license_key || '—'}</td>
+          <td>${l.email || '—'}</td>
+          <td><span class="badge ${actionColors[l.action] || 'badge-gray'}">${l.action}</span></td>
+          <td>${l.ip || '—'}</td>
+          <td style="font-size:11px">${l.hwid ? l.hwid.substring(0, 12) + '...' : '—'}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function changePassword() {
+      const res = await api('/admin/change-password', {
+        method: 'POST',
+        body: {
+          current_password: document.getElementById('p_current').value,
+          new_password: document.getElementById('p_new').value
+        }
+      });
+      if (res.success) {
+        alert('Password changed. Please log in again.');
+        location.href = '/admin/login';
+      } else {
+        alert(res.error || 'Failed to change password.');
+      }
+    }
+
+    // Init
+    loadLicenses();
+  </script>
+</body>
+</html>
